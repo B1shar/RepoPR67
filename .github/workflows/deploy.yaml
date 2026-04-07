@@ -3,7 +3,7 @@ name: Deploy Node.js App to Azure Web App
 on:
   push:
     branches:
-      - master   # branche que tu veux déployer, ici master
+      - master  # ou 'main' si ta branche principale est main
 
 jobs:
   build-and-deploy:
@@ -16,14 +16,14 @@ jobs:
     - name: Set up Node.js
       uses: actions/setup-node@v3
       with:
-        node-version: '18'   # ou la version que tu utilises
+        node-version: '18'  # ou la version que tu utilises
 
     - name: Install dependencies
       run: npm install
 
-    - name: Build project (si nécessaire)
-      run: npm run build
-      # si tu n’as pas de build, tu peux supprimer cette étape
+    # On ne fait pas de build car ton projet n'a pas de script build
+    # - name: Build project
+    #   run: npm run build
 
     - name: Zip files for deployment
       run: zip -r app.zip .
@@ -31,7 +31,7 @@ jobs:
     - name: Deploy to Azure Web App
       uses: azure/webapps-deploy@v3
       with:
-        app-name: ${{ secrets.AZURE_WEBAPP_NAME }}       # secret que tu crées avec la valeur "Bachchar-Enaimi"
-        publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}  # secret que tu récupères depuis Azure
+        app-name: ${{ secrets.AZURE_WEBAPP_NAME }}          # le nom exact de ton App Web dans Azure
+        publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }} # ton fichier publish profile mis dans GitHub Secrets
         package: app.zip
-        slot-name: production   # laisse "production" si tu n’as pas de slot
+        slot-name: production
