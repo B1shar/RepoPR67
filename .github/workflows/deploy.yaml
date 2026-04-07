@@ -3,35 +3,35 @@ name: Deploy Node.js App to Azure Web App
 on:
   push:
     branches:
-      - master  # ou 'main' si ta branche principale est main
+      - master # ou 'main' si ta branche principale est main
 
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout GitHub repo
-      uses: actions/checkout@v3
+      - name: Checkout GitHub repo
+        uses: actions/checkout@v3
 
-    - name: Set up Node.js
-      uses: actions/setup-node@v3
-      with:
-        node-version: '18'  # ou la version que tu utilises
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: "18" # ou la version que tu utilises
 
-    - name: Install dependencies
-      run: npm install
+      - name: Install dependencies
+        run: npm install
 
-    # On ne fait pas de build car ton projet n'a pas de script build
-    # - name: Build project
-    #   run: npm run build
+      # On ne fait pas de build car ton projet n'a pas de script build
+      # - name: Build project
+      #   run: npm run build
 
-    - name: Zip files for deployment
-      run: zip -r app.zip .
+      - name: Zip files for deployment
+        run: zip -r app.zip .
 
-    - name: Deploy to Azure Web App
-      uses: azure/webapps-deploy@v3
-      with:
-        app-name: ${{ secrets.AZURE_WEBAPP_NAME }}          # le nom exact de ton App Web dans Azure
-        publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }} # ton fichier publish profile mis dans GitHub Secrets
-        package: app.zip
-        slot-name: production
+      - name: Deploy to Azure Web App
+        uses: azure/webapps-deploy@v3
+        with:
+          app-name: "Bachchar-Enaimi" # le nom exact de ton App Web dans Azure
+          publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }} # ton fichier publish profile mis dans GitHub Secrets
+          package: app.zip
+          slot-name: production
