@@ -8,7 +8,7 @@ const app = express();
 const PORT = process.env.PORT || 8080; 
 
 // On utilise /home car c'est le seul dossier persistant et accessible en écriture sur Azure Linux
-const FILE = path.join("/home", "visits.json");
+const FILE = "/home/visits.json";
 
 let lock = false;
 
