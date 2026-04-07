@@ -1,31 +1,26 @@
-name: Deploy Node.js JSON Counter
+name: Azure WebApp Deploy
 
 on:
   push:
     branches:
-      - master
+      - master  # ou main selon ton repo
 
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
+
     steps:
-      - name: Checkout
+      - name: Checkout repository
         uses: actions/checkout@v3
 
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: '18'
-
-      - name: Install dependencies
-        run: npm install
-
-      - name: Zip project
-        run: zip -r app.zip .
+          node-version: '18'  # ou la version que tu utilises
 
       - name: Deploy to Azure Web App
         uses: azure/webapps-deploy@v3
         with:
           app-name: ${{ secrets.AZURE_WEBAPP_NAME }}
           publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
-          package: app.zip
+          package: .
