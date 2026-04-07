@@ -3,13 +3,15 @@ const fs = require("fs");
 const path = require("path");
 
 const app = express();
-const PORT = process.env.PORT || 3000;
-const FILE = path.join(__dirname, "visits.json");
 
-// Mutex simple pour éviter l'écriture concurrente
+// Azure injecte automatiquement le port dans process.env.PORT
+const PORT = process.env.PORT || 8080; 
+
+// On utilise /home car c'est le seul dossier persistant et accessible en écriture sur Azure Linux
+const FILE = path.join("/home", "visits.json");
+
 let lock = false;
 
-// Lire compteur
 function readCounter() {
     try {
         if (!fs.existsSync(FILE)) {
@@ -18,47 +20,30 @@ function readCounter() {
         const data = fs.readFileSync(FILE);
         return JSON.parse(data).count;
     } catch (err) {
-        console.error("Erreur lecture JSON:", err);
+        console.error("Erreur lecture:", err);
         return 0;
     }
 }
 
-// Écrire compteur
 function writeCounter(count) {
     try {
         fs.writeFileSync(FILE, JSON.stringify({ count }, null, 2));
     } catch (err) {
-        console.error("Erreur écriture JSON:", err);
+        console.error("Erreur écriture:", err);
     }
 }
 
-// Route principale
 app.get("/", async (req, res) => {
-    while (lock) {
-        await new Promise(r => setTimeout(r, 10));
-    }
+    while (lock) { await new Promise(r => setTimeout(r, 10)); }
     lock = true;
     try {
         let count = readCounter();
         count++;
         writeCounter(count);
-
-        const hostname = req.hostname;
-        const port = req.socket.localPort;
-        const serverIP = req.socket.localAddress;
-        const clientIP = req.headers["x-forwarded-for"] || req.socket.remoteAddress;
-
         res.send(`
-            <h2>Compteur de visites</h2>
-            <p><strong>Nombre de visites :</strong> ${count}</p>
-            <hr>
-            <h3>Informations serveur</h3>
-            <p><strong>Hostname :</strong> ${hostname}</p>
-            <p><strong>Port :</strong> ${port}</p>
-            <p><strong>IP serveur :</strong> ${serverIP}</p>
-            <hr>
-            <h3>Informations client</h3>
-            <p><strong>IP client :</strong> ${clientIP}</p>
+            <h1>Compteur de visites Azure</h1>
+            <p><strong>Visites :</strong> ${count}</p>
+            <p><strong>Serveur :</strong> ${req.hostname}</p>
         `);
     } finally {
         lock = false;
@@ -66,5 +51,5 @@ app.get("/", async (req, res) => {
 });
 
 app.listen(PORT, () => {
-    console.log(`Server running on port ${PORT}`);
+    console.log(`Le serveur écoute sur le port ${PORT}`);
 });
